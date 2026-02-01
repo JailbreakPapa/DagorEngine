@@ -1,6 +1,7 @@
 // Copyright (C) Gaijin Games KFT.  All rights reserved.
 
 #include <osApiWrappers/dag_vromfs.h>
+#include <ioSys/dag_vresources.h>
 #include <osApiWrappers/dag_localConv.h>
 #include <osApiWrappers/dag_direct.h>
 #include <osApiWrappers/dag_critSec.h>
@@ -280,6 +281,13 @@ VromReadHandle vromfs_get_file_data_one(const char *fname, VirtualRomFsData **ou
         int idx = fs->files.getNameId(name);
         if (idx >= 0)
         {
+          if (fs->flags & EVRF_IS_VRESOURCES)
+          {
+            if (out_vrom)
+              *out_vrom = fs;
+            return vresources_get_file_data(name, (VResourcesData *)fs);
+          }
+
           if (static_cast<VirtualRomFsPack *>(fs)->isValid() && !out_vrom)
             return {};
           if (out_vrom)
